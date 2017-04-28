@@ -1,13 +1,15 @@
-/* globals $ */
+/* globals $, SC */
 var Jukebox = {
-	songs: [],
 	activeSong: null,
 	volume: 100,
 	isPlaying: false,
 	dom: {},
 	currentIndex: 0,
+	songs: [],
 
 	start: function() {
+		SC.initialize({ client_id: "fd4e76fc67798bfa742089ed619084a6" });
+
 		this.dom = {
 			back: $(".back"),
 			play: $(".play"),
@@ -17,6 +19,8 @@ var Jukebox = {
 			sound: $(".sound"),
 			songs: $(".display"),
 			upload: $(".upload input"),
+			input: $(".input"),
+			add: $(".add"),
 		};
 		this.addSong("01_nikes.mp3", {
 			title: "This is Nikes",
@@ -32,8 +36,8 @@ var Jukebox = {
 		this.hearing();
 	},
 
-	addSong: function(path) {
-		var song = new Song(path);
+	addSong: function(file, meta) {
+		var song = new FileSong(file, meta);
 		this.songs.push(song);
 		this.render();
 		return song;
@@ -51,6 +55,16 @@ var Jukebox = {
 		this.dom.pause.on("click", this.pause.bind(this));
 		this.dom.forward.on("click", function() {
 			this.forward();
+		}.bind(this));
+		this.dom.add.on("click", function() {
+			var url = this.dom.input.val();
+			var song = new CloudSong(url);
+			console.log("loading soundcloud music");
+			this.songs.push(song);
+			var $song = song.render();
+			this.dom.songs.append($song);
+			this.render();
+			return song;
 		}.bind(this));
 		this.dom.sound.on("click", function() {
 			this.setVolume(0);
@@ -85,7 +99,6 @@ var Jukebox = {
 		this.activeSong = song;
 	},
 
-
 	play: function(song) {
 		console.log("its playing");
 		if (song) {
@@ -103,12 +116,12 @@ var Jukebox = {
 
 
 	pause: function() {
-		console.log("you are pausing");
+		console.log("Music paused");
 		this.activeSong.pause();
 	},
 
 	stop: function() {
-		console.log("you are stopping");
+		console.log("Music stopped");
 		this.activeSong.stop();
 	},
 
@@ -129,12 +142,19 @@ var Jukebox = {
 
 
 class Song {
-	constructor(file, meta) {
+	constructor(file,meta) {
 		this.file = file;
+		this.meta = {};
 		this.audio = new Audio(file);
+		this.$song = $("<div class='display-song'></div>");
 	}
 	render() {
-		return $("<div class='display-song'>" + this.file + "</div>");
+		this.$song.html("");
+		this.$song.append('<div class="display-title">' + this.meta.title + '</div>');
+		this.$song.append('<div class="display-artist">' + this.meta.artist + '</div>');
+
+
+		return this.$song;
 	}
 	play() {
 		this.audio.play();
@@ -147,6 +167,50 @@ class Song {
 		this.audio.currentTime = 0;
 	}
 }
+
+class CloudSong extends Song {
+	constructor(url) {
+		super ();
+		SC.resolve(url)
+		.then(function(song) {
+			this.meta = {
+				title: song.title,
+				artist: song.user.username,
+			};
+			return song;
+		}.bind(this))
+
+				.then(function(song) {
+					this.activeAudio = new Audio(song.uri +
+					"/stream?client_id=fd4e76fc67798bfa742089ed619084a6");
+					this.render();
+				}.bind(this))
+
+				.catch(function(err) {
+					if (err.status === 404)
+						alert("Cant find this song");
+					else {
+						console.error(err);
+						alert ("There is an Error with the system");
+					}
+				});
+	}
+
+}
+
+class FileSong extends Song {
+	constructor(file, meta) {
+		super();
+		this.file = file;
+		this.meta = meta || {
+			title: "Unknown title",
+			artist: "Unknown artist",
+		};
+		this.audio = new Audio(file);
+		console.log(this);
+	}
+}
+
 
 $(document).ready(function() {
 	Jukebox.start();

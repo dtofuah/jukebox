@@ -19,7 +19,7 @@ float: left;
 
 }
 
-.upload {
+.upload1 {
 	float: right;
 	height: 45px;
 	width: 350px;
@@ -34,10 +34,15 @@ float: left;
 }
 
 .buttons {
-	height: 50px;
+	position: fixed;
+	height: 62px;
 	width: 100%;
 	background-color: red;
 	text-align: center;
 	padding-top: 30px;
-  position: relative;
+	opacity: 0.9;
+}
+
+.play: hover {
+	background: red;
 }

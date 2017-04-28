@@ -4,6 +4,7 @@
 	<title>My JukeBox</title>
 	<link rel="stylesheet" type="text/css" href="juke.css">
   <script src="jquery-3.2.0.min.js"></script>
+	<script src="https://connect.soundcloud.com/sdk/sdk-3.1.2.js"></script>
 	<script src="jukebox.js"></script>
 </head>
   <body>
@@ -11,7 +12,10 @@
 		<div class = "head">
 		   <div class = "logo"><h1>Jukebox</h1></div>
 		   <div class = "upload1">
-         <lable class = "upload">
+				 Search:
+				 <input type= "text" class = "input">
+				 <button type="button" class="add">Add</button>
+         <lable class = "upload"><br/>
 					 Upload Music:
 					 <input type="file" name="Music">
            <!-- <input type="submit" class="upload"> -->
