@@ -145,13 +145,15 @@ class Song {
 	constructor(file,meta) {
 		this.file = file;
 		this.meta = {};
-		this.audio = new Audio(file);
+		this.audio = null;
 		this.$song = $("<div class='display-song'></div>");
 	}
 	render() {
 		this.$song.html("");
-		this.$song.append('<div class="display-title">' + this.meta.title + '</div>');
-		this.$song.append('<div class="display-artist">' + this.meta.artist + '</div>');
+		this.$song.append('<div class="display-song-title">' + this.meta.title + '</div>');
+		this.$song.append('<div class="display-song-artist">'  + '<a href= ' + this.meta.user + '>' + this.meta.artist + '</div>');
+		this.$song.append('<img class "soundcloud-image" src = ' + this.meta.image + '>');
+
 
 
 		return this.$song;
@@ -176,12 +178,14 @@ class CloudSong extends Song {
 			this.meta = {
 				title: song.title,
 				artist: song.user.username,
+				image: song.artwork_url,
+				user: song.permalink_url,
 			};
 			return song;
 		}.bind(this))
 
 				.then(function(song) {
-					this.activeAudio = new Audio(song.uri +
+					this.audio = new Audio(song.uri +
 					"/stream?client_id=fd4e76fc67798bfa742089ed619084a6");
 					this.render();
 				}.bind(this))
@@ -207,7 +211,6 @@ class FileSong extends Song {
 			artist: "Unknown artist",
 		};
 		this.audio = new Audio(file);
-		console.log(this);
 	}
 }
 
